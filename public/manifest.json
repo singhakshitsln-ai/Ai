@@ -1,0 +1,13 @@
+{
+  "name": "FRANCIS Tools",
+  "short_name": "FRANCIS",
+  "description": "30 powerful file tools, offline capable",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#050d05",
+  "theme_color": "#00ff41",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

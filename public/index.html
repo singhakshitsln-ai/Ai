@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="FRANCIS — FRANCIS — free tools platform powered by a secure Express.js server, with member accounts and cloud data sync. Productivity, dev, crypto, health, finance and more.">
+<meta name="keywords" content="free tools, browser tools, offline tools, productivity, developer tools, PWA">
+<meta name="author" content="Akshit Singh">
+<meta property="og:title" content="FRANCIS — Free Tools PWA">
+<meta property="og:description" content="FRANCIS — free browser tools with secure signup, sign-in and account cloud storage.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://YOUR-PROJECT.vercel.app/">
+<link rel="canonical" href="https://YOUR-PROJECT.vercel.app/">
+<meta name="theme-color" content="#00ff41">
+<link rel="manifest" href="./manifest.json">
+<title>FRANCIS — Free Tools</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#00ff41;--g2:#00aa22;--g3:#006615;--g4:#003a0d;--bg:#050d05;--card:#0a1a0a}
+body{background:var(--bg);color:var(--g);font-family:'Courier New',Courier,monospace;min-height:100vh;overflow-x:hidden}
+
+/* MATRIX RAIN */
+#mx{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.06;pointer-events:none}
+
+/* SCANLINE */
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.05) 3px,rgba(0,0,0,.05) 4px);pointer-events:none;z-index:1}
+
+.page{position:relative;z-index:2}
+
+/* HERO */
+.hero{text-align:center;padding:80px 20px 40px;position:relative}
+.hero-badge{display:inline-block;background:rgba(0,255,65,.08);border:1px solid var(--g4);border-radius:20px;font-size:.6rem;letter-spacing:3px;padding:5px 16px;color:var(--g3);margin-bottom:20px}
+.hero-title{font-size:clamp(2.5rem,8vw,5rem);font-weight:bold;letter-spacing:.05em;text-shadow:0 0 40px var(--g);line-height:1;margin-bottom:16px;animation:heroIn .8s ease}
+@keyframes heroIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+.hero-title span{color:#fff;text-shadow:0 0 20px #fff}
+.hero-desc{font-size:.85rem;color:var(--g3);letter-spacing:1px;margin-bottom:30px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.8}
+.hero-stats{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:32px}
+.hstat{text-align:center}
+.hstat-n{font-size:1.6rem;font-weight:bold;color:var(--g);text-shadow:0 0 12px var(--g)}
+.hstat-l{font-size:.52rem;color:var(--g3);letter-spacing:2px}
+
+/* SEARCH */
+.search-wrap{max-width:520px;margin:0 auto 40px;position:relative}
+#search{width:100%;padding:14px 48px 14px 20px;background:rgba(0,0,0,.6);border:2px solid var(--g4);border-radius:12px;color:var(--g);font-family:'Courier New',monospace;font-size:.9rem;outline:none;transition:border-color .2s;letter-spacing:.5px}
+#search:focus{border-color:var(--g);box-shadow:0 0 16px rgba(0,255,65,.15)}
+#search::placeholder{color:var(--g4)}
+.search-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--g3);font-size:1rem;pointer-events:none}
+#search-count{text-align:center;font-size:.6rem;color:var(--g3);letter-spacing:2px;margin-top:-32px;margin-bottom:12px;height:16px}
+
+/* FILTER TABS */
+.cats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:900px;margin:0 auto 32px;padding:0 16px}
+.cat{background:none;border:1px solid var(--g4);border-radius:20px;color:var(--g3);font-family:'Courier New',monospace;font-size:.58rem;letter-spacing:1.5px;padding:5px 12px;cursor:pointer;text-transform:uppercase;transition:all .15s}
+.cat:hover{border-color:var(--g2);color:var(--g2)}
+.cat.on{background:var(--g);color:#000;border-color:var(--g);font-weight:bold}
+
+/* TOOL GRID */
+.grid-wrap{max-width:1200px;margin:0 auto;padding:0 16px 60px}
+#tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.tb{background:var(--card);border:1.5px solid var(--g4);border-radius:10px;padding:14px 12px;cursor:pointer;transition:all .18s;text-align:left;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
+.tb::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:1px;background:linear-gradient(90deg,transparent,var(--g3),transparent);transition:left .4s}
+.tb:hover::before{left:150%}
+.tb:hover{border-color:var(--g2);transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,255,65,.08)}
+.tb-icon{font-size:1.3rem;line-height:1}
+.tb-name{font-size:.72rem;font-weight:bold;color:var(--g);letter-spacing:.5px}
+.tb-desc{font-size:.58rem;color:var(--g3);line-height:1.4}
+.tb-cat{position:absolute;top:8px;right:8px;font-size:.44rem;color:var(--g4);text-transform:uppercase;letter-spacing:1px}
+
+/* MODAL */
+#modal-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:16px}
+#modal-overlay.on{display:flex}
+#modal-box{background:var(--card);border:1.5px solid var(--g3);border-radius:16px;width:100%;max-width:680px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 40px rgba(0,255,65,.15)}
+#modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--g4);flex-shrink:0}
+#modal-title{font-size:.9rem;font-weight:bold;color:var(--g);letter-spacing:1px}
+#modal-close{background:none;border:1.5px solid var(--g4);color:var(--g3);width:30px;height:30px;border-radius:6px;cursor:pointer;font-family:monospace;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .15s}
+#modal-close:hover{border-color:#f00;color:#f00}
+#modal-body{flex:1;overflow-y:auto;padding:20px;scrollbar-width:thin;scrollbar-color:var(--g4) transparent}
+#modal-body::-webkit-scrollbar{width:4px}
+#modal-body::-webkit-scrollbar-thumb{background:var(--g4);border-radius:2px}
+
+/* TOOL UI SHARED STYLES */
+.t-label{font-size:.58rem;color:var(--g2);letter-spacing:2px;display:block;margin-bottom:5px;text-transform:uppercase}
+.t-inp,.t-ta,.t-sel{width:100%;padding:10px 12px;background:rgba(0,0,0,.7);border:1.5px solid var(--g4);border-radius:8px;color:var(--g);font-family:'Courier New',monospace;font-size:.8rem;outline:none;margin-bottom:10px;transition:border-color .18s}
+.t-ta{resize:vertical;min-height:80px}
+.t-inp:focus,.t-ta:focus,.t-sel:focus{border-color:var(--g);box-shadow:0 0 6px rgba(0,255,65,.15)}
+.t-inp::placeholder,.t-ta::placeholder{color:var(--g4)}
+.t-sel option{background:#050d05}
+.t-btn{padding:10px 18px;background:var(--g);border:none;border-radius:8px;color:#000;font-family:'Courier New',monospace;font-weight:bold;font-size:.75rem;letter-spacing:1.5px;cursor:pointer;transition:opacity .18s;margin-right:6px;margin-bottom:6px}
+.t-btn:hover{opacity:.82}
+.t-btn.ghost{background:transparent;border:1.5px solid var(--g4);color:var(--g3)}
+.t-btn.ghost:hover{border-color:var(--g2);color:var(--g2)}
+.t-out{background:rgba(0,0,0,.7);border:1.5px solid var(--g4);border-left:3px solid var(--g);border-radius:8px;padding:12px;font-size:.78rem;color:var(--g2);word-break:break-word;white-space:pre-wrap;margin-top:10px;min-height:40px;max-height:220px;overflow-y:auto;display:none}
+.t-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+
+/* FOOTER */
+footer{text-align:center;padding:32px 16px;border-top:1px solid var(--g4);font-size:.6rem;color:var(--g4);letter-spacing:2px;line-height:2}
+footer a{color:var(--g3);text-decoration:none}
+footer a:hover{color:var(--g)}
+
+/* TOAST */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(5,18,5,.99);border:1.5px solid var(--g);border-radius:8px;padding:8px 20px;font-size:.72rem;color:var(--g);letter-spacing:1px;z-index:100000;display:none;white-space:nowrap;box-shadow:0 0 16px rgba(0,255,65,.3)}
+
+/* INSTALL BANNER */
+#install-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(5,18,5,.98);border-top:2px solid var(--g);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;z-index:9998;font-size:.75rem}
+#install-banner.hide{display:none!important}
+.ib-text{color:var(--g2)}
+.ib-btns{display:flex;gap:8px}
+
+@media(max-width:600px){
+  #tool-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+  .hero-title{font-size:2.5rem}
+}
+</style>
+</head>
+<body>
+
+<canvas id="mx"></canvas>
+
+<!-- NAV (nav.js will build this) -->
+<div id="fn-nav-placeholder"></div>
+<div id="francis-account-root"></div>
+
+<div class="page">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">⬡ EXPRESS.JS · SECURE ACCOUNTS · CLOUD SYNC</div>
+  <h1 class="hero-title">FR<span>A</span>NCIS</h1>
+  <p class="hero-desc">565+ free tools — productivity, developer, crypto, health, finance & more. FRANCIS runs on an Express.js server with secure accounts and cloud sync.</p>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-n" id="total-count">565+</div><div class="hstat-l">TOOLS</div></div>
+    <div class="hstat"><div class="hstat-n">20</div><div class="hstat-l">CATEGORIES</div></div>
+    <div class="hstat"><div class="hstat-n">1</div><div class="hstat-l">SERVER</div></div>
+    <div class="hstat"><div class="hstat-n">24/7</div><div class="hstat-l">TOOLS ACCESS</div></div>
+  </div>
+</section>
+
+<!-- SEARCH -->
+<div class="search-wrap" style="padding:0 16px">
+  <input id="search" type="text" placeholder="🔍  Search 565+ tools..." autocomplete="off" oninput="doSearch(this.value)">
+  <span class="search-icon">⌖</span>
+</div>
+<div id="search-count"></div>
+
+<!-- CATEGORY FILTERS -->
+<div class="cats" id="cat-bar">
+  <button class="cat on" onclick="filterCat('all',this)">⚡ All</button>
+</div>
+
+<!-- TOOL GRID -->
+<div class="grid-wrap">
+  <div id="tool-grid"></div>
+</div>
+
+</div><!-- /page -->
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div id="modal-box">
+    <div id="modal-head">
+      <div id="modal-title">Tool</div>
+      <button id="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body" id="modal-content"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- FOOTER -->
+<footer class="ft">
+  <div>FRANCIS // 565+ TOOLS // ALL RUN OFFLINE</div>
+  <div style="margin-top:6px">Designed by <a href="mailto:Akshitasleo@gmail.com">Akshit Singh</a> &nbsp;·&nbsp; <a href="./sitemap.xml">Sitemap</a></div>
+</footer>
+
+<!-- SERVICE WORKER REG -->
+<script>
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+
+<!-- MATRIX RAIN -->
+<script>
+(function(){
+  const c=document.getElementById('mx');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  const cols=Math.floor(c.width/10);
+  const drops=Array(cols).fill(1);
+  setInterval(()=>{
+    ctx.fillStyle='rgba(0,0,0,.05)';ctx.fillRect(0,0,c.width,c.height);
+    ctx.fillStyle='#00ff41';ctx.font='10px monospace';
+    drops.forEach((y,i)=>{ctx.fillText(String.fromCharCode(Math.floor(Math.random()*94+33)),i*10,y*10);if(y*10>c.height&&Math.random()>.95)drops[i]=0;drops[i]++;});
+  },60);
+})();
+</script>
+
+<!-- CORE TOOL ENGINE -->
+<script>
+// ─── TOOL REGISTRY ──────────────────────────────────────────────
+// Each entry: [id, category, icon, name, description]
+var TR = [
+  // TEXT
+  ['word_count',    'text',     '📝','Word Counter',          'Count words, chars, sentences and reading time'],
+  ['char_counter',  'text',     '🔡','Character Counter',     'Count characters with or without spaces'],
+  ['case_conv',     'text',     '🔤','Case Converter',        'Upper, lower, title, camel, snake case'],
+  ['text_reverse',  'text',     '🔃','Text Reverser',         'Reverse any text instantly'],
+  ['line_sort',     'text',     '↕️','Line Sorter',           'Sort lines alphabetically or by length'],
+  ['dupe_remove',   'text',     '🧹','Duplicate Remover',     'Remove duplicate lines from text'],
+  ['text_compare',  'text',     '⚖️','Text Diff',             'Compare two texts and highlight differences'],
+  ['lorem_gen',     'text',     '📄','Lorem Generator',       'Generate Lorem Ipsum placeholder text'],
+  ['slug_gen',      'text',     '🔗','Slug Generator',        'Convert text to URL-friendly slug'],
+  ['find_replace',  'text',     '🔎','Find & Replace',        'Find and replace text in bulk'],
+  ['text_encrypt',  'text',     '🔐','Text Encrypt',          'Encrypt text with a key'],
+  ['text_stats',    'text',     '📊','Text Statistics',       'Detailed text analysis and stats'],
+
+  // DEVELOPER
+  ['json_fmt',      'dev',      '📦','JSON Formatter',        'Format and validate JSON instantly'],
+  ['base64_enc',    'dev',      '⬡','Base64 Encode',          'Encode text or data to Base64'],
+  ['base64_dec',    'dev',      '⬡','Base64 Decode',          'Decode Base64 to plain text'],
+  ['url_enc',       'dev',      '🔗','URL Encoder',           'Encode special characters in URLs'],
+  ['url_dec',       'dev',      '🔗','URL Decoder',           'Decode URL-encoded strings'],
+  ['html_enc',      'dev',      '🌐','HTML Encoder',          'Encode HTML entities'],
+  ['html_dec',      'dev',      '🌐','HTML Decoder',          'Decode HTML entities'],
+  ['regex_test',    'dev',      '🔍','Regex Tester',          'Test regular expressions live'],
+  ['uuid_gen',      'dev',      '🆔','UUID Generator',        'Generate unique UUIDs v4'],
+  ['hash_gen',      'dev',      '🔑','Hash Generator',        'Generate SHA-256 and other hashes'],
+  ['css_minify',    'dev',      '🎨','CSS Minifier',          'Minify CSS code'],
+  ['js_minify',     'dev',      '⚡','JS Minifier',           'Minify JavaScript code'],
+  ['color_pick',    'dev',      '🎨','Color Picker',          'Pick, convert and copy colors'],
+  ['diff_checker',  'dev',      '🔬','Diff Checker',          'Compare code differences'],
+  ['jwt_decode',    'dev',      '🎫','JWT Decoder',           'Decode JWT tokens without a secret'],
+  ['markdown_prev', 'dev',      '📋','Markdown Preview',      'Live Markdown to HTML preview'],
+  ['html_preview',  'dev',      '🌐','HTML Preview',          'Live HTML renderer in browser'],
+
+  // MATH
+  ['calc_basic',    'math',     '🧮','Calculator',            'Full scientific calculator'],
+  ['percentage',    'math',     '💯','Percentage Calc',       'Calculate percentages easily'],
+  ['fraction',      'math',     '½','Fraction Simplifier',   'Simplify and convert fractions'],
+  ['prime_check',   'math',     '🔢','Prime Checker',         'Check if a number is prime'],
+  ['fibonacci',     'math',     '🌀','Fibonacci',             'Generate Fibonacci sequence'],
+  ['gcd_lcm',       'math',     '➗','GCD & LCM',             'Greatest common divisor and LCM'],
+  ['roman_num',     'math',     '🏛️','Roman Numerals',        'Convert to and from Roman numerals'],
+  ['binary_conv',   'math',     '01','Binary Converter',     'Convert between binary, decimal, hex'],
+  ['matrix_calc',   'math',     '⬡','Matrix Calculator',     'Add, multiply 2×2 matrices'],
+  ['stats_calc',    'math',     '📈','Statistics',            'Mean, median, mode, std deviation'],
+
+  // UNIT CONVERTER
+  ['length_conv',   'convert',  '📏','Length Converter',      'mm, cm, m, km, in, ft, yd, mi'],
+  ['weight_conv',   'convert',  '⚖️','Weight Converter',      'kg, g, lb, oz, ton, stone'],
+  ['temp_conv',     'convert',  '🌡️','Temperature',           'Celsius, Fahrenheit, Kelvin'],
+  ['speed_conv',    'convert',  '🚀','Speed Converter',       'km/h, mph, m/s, knots'],
+  ['area_conv',     'convert',  '📐','Area Converter',        'm², km², ft², acre, hectare'],
+  ['volume_conv',   'convert',  '🥤','Volume Converter',      'L, mL, fl oz, cups, pints, gallons'],
+  ['data_conv',     'convert',  '💾','Data Size',             'Bytes, KB, MB, GB, TB, PB'],
+  ['time_conv',     'convert',  '⏱️','Time Converter',        'Seconds, minutes, hours, days, weeks'],
+  ['angle_conv',    'convert',  '📐','Angle Converter',       'Degrees, radians, gradians'],
+  ['pressure_conv', 'convert',  '🌪️','Pressure Converter',   'Pa, bar, atm, psi, mmHg'],
+  ['energy_conv',   'convert',  '⚡','Energy Converter',      'J, kJ, cal, kcal, kWh, BTU'],
+  ['currency_conv', 'convert',  '💱','Currency Rates',        'Live currency exchange rates'],
+
+  // FINANCE
+  ['compound_int',  'finance',  '💹','Compound Interest',     'Calculate compound interest growth'],
+  ['loan_calc',     'finance',  '🏦','Loan Calculator',       'Monthly payment and interest total'],
+  ['tip_calc',      'finance',  '🍽️','Tip Calculator',        'Split bill and calculate tips'],
+  ['discount_calc', 'finance',  '🏷️','Discount Calculator',   'Final price after discount'],
+  ['roi_calc',      'finance',  '📊','ROI Calculator',        'Return on investment calculator'],
+  ['tax_calc',      'finance',  '🧾','Tax Calculator',        'Calculate tax and after-tax amount'],
+  ['budget_planner','finance',  '💰','Budget Planner',        'Income vs expense tracker'],
+  ['salary_calc',   'finance',  '💼','Salary Calculator',     'Monthly/annual salary breakdown'],
+  ['sip_calc',      'finance',  '📈','SIP Calculator',        'Mutual fund SIP returns calculator'],
+
+  // DATE & TIME
+  ['date_diff',     'date',     '📅','Date Difference',       'Days between two dates'],
+  ['age_calc',      'date',     '🎂','Age Calculator',        'Exact age from birthdate'],
+  ['unix_time',     'date',     '🕰️','Unix Timestamp',        'Convert Unix time to date'],
+  ['countdown',     'date',     '⏳','Countdown Timer',       'Countdown to any date'],
+  ['day_of_week',   'date',     '📆','Day of Week',           'What day was any date?'],
+  ['week_num',      'date',     '🗓️','Week Number',           'Get ISO week number of any date'],
+  ['time_zone',     'date',     '🌍','Time Zones',            'Current time in world cities'],
+  ['date_format',   'date',     '📋','Date Formatter',        'Format dates in any pattern'],
+
+  // HEALTH
+  ['bmi_calc',      'health',   '⚖️','BMI Calculator',        'Body mass index calculator'],
+  ['calorie_calc',  'health',   '🍎','Calorie Burn',          'Calories burned by activity'],
+  ['water_intake',  'health',   '💧','Water Intake',          'Daily water needs by weight'],
+  ['sleep_calc',    'health',   '😴','Sleep Calculator',      'Best bedtime and wake-up times'],
+  ['heart_rate',    'health',   '❤️','Heart Rate Zones',      'Target heart rate zones'],
+  ['body_fat',      'health',   '💪','Body Fat %',            'Estimate body fat percentage'],
+  ['protein_calc',  'health',   '🥩','Protein Calculator',    'Daily protein needs'],
+  ['ideal_weight',  'health',   '🎯','Ideal Weight',          'Healthy weight range for height'],
+
+  // CRYPTO
+  ['caesar_cipher', 'crypto',   '🔐','Caesar Cipher',         'Encrypt text with Caesar shift'],
+  ['rot13',         'crypto',   '🔄','ROT13',                 'ROT13 encode/decode'],
+  ['morse_code',    'crypto',   '📡','Morse Code',            'Text to Morse and back'],
+  ['vigenere',      'crypto',   '🗝️','Vigenère Cipher',       'Vigenère encryption'],
+  ['binary_text',   'crypto',   '01','Binary Text',           'Convert text to/from binary'],
+  ['hex_text',      'crypto',   '🔢','Hex Converter',         'Text to hex and back'],
+  ['atbash',        'crypto',   '🔀','Atbash Cipher',         'Mirror alphabet cipher'],
+  ['xor_cipher',    'crypto',   '⊕','XOR Cipher',            'XOR encryption with key'],
+
+  // COLOR
+  ['hex_rgb',       'color',    '🎨','HEX ↔ RGB',             'Convert hex colors to RGB'],
+  ['color_mixer',   'color',    '🖌️','Color Mixer',           'Mix two colors together'],
+  ['palette_gen',   'color',    '🌈','Palette Generator',     'Generate color palettes'],
+  ['gradient_gen',  'color',    '🌅','Gradient Maker',        'CSS gradient generator'],
+  ['color_blind',   'color',    '👁️','Color Blindness Sim',   'Preview color blindness modes'],
+  ['contrast_check','color',    '⚡','Contrast Checker',      'WCAG contrast ratio checker'],
+  ['tint_shade',    'color',    '☀️','Tints & Shades',         'Generate tints and shades'],
+
+  // RANDOM / GENERATE
+  ['random_num',    'random',   '🎲','Random Number',         'Random number in any range'],
+  ['random_pass',   'random',   '🔑','Password Generator',    'Strong password generator'],
+  ['coin_flip',     'random',   '🪙','Coin Flip',             'Flip a virtual coin'],
+  ['dice_roll',     'random',   '🎲','Dice Roller',           'Roll any number of dice'],
+  ['random_choice', 'random',   '🎯','Random Choice',         'Pick randomly from a list'],
+  ['shuffle_list',  'random',   '🔀','List Shuffler',         'Shuffle items randomly'],
+  ['random_color',  'random',   '🎨','Random Color',          'Generate random colors'],
+  ['lottery_pick',  'random',   '🎰','Lottery Picker',        'Random lottery number picker'],
+
+  // UTILITY
+  ['qr_gen',        'util',     '📱','QR Generator',          'Generate QR codes for any text'],
+  ['barcode_read',  'util',     '📊','Barcode Info',          'Barcode format reference'],
+  ['stopwatch',     'util',     '⏱️','Stopwatch',             'Precise stopwatch with laps'],
+  ['note_pad',      'util',     '📝','Notepad',               'Quick notes saved in browser'],
+  ['pomodoro',      'util',     '🍅','Pomodoro Timer',        '25-minute focus timer'],
+  ['char_map',      'util',     '🔡','Character Map',         'Browse special characters'],
+  ['screen_ruler',  'util',     '📏','Screen Ruler',          'Measure elements on screen'],
+  ['ip_lookup',     'util',     '🌐','IP Lookup',             'Look up any IP address info'],
+  ['ping_test',     'util',     '📡','Ping Test',             'Test connection ping'],
+
+  // IMAGE
+  ['img_compress',  'image',    '🖼️','Image Info',            'Display image metadata'],
+  ['img_colors',    'image',    '🎨','Color Extractor',       'Extract dominant image colors'],
+  ['svg_edit',      'image',    '✏️','SVG Editor',            'Edit and preview SVG code'],
+  ['ascii_art',     'image',    '👾','ASCII Art',             'Convert text to ASCII art'],
+  ['favicon_gen',   'image',    '⭐','Favicon Generator',     'Generate favicon from text'],
+
+  // SOCIAL / SHARE
+  ['og_preview',    'social',   '🔗','OG Preview',            'Preview Open Graph social cards'],
+  ['meta_gen',      'social',   '🏷️','Meta Tag Generator',    'Generate SEO meta tags'],
+  ['tweet_count',   'social',   '🐦','Tweet Counter',         'Count characters for Twitter/X'],
+  ['hashtag_gen',   'social',   '#','Hashtag Generator',      'Generate relevant hashtags'],
+  ['bio_gen',       'social',   '📝','Bio Generator',         'Generate social media bio'],
+  ['link_preview',  'social',   '👁️','Link Preview',          'Preview any URL metadata'],
+
+  // WEATHER / GEO
+  ['weather_now',   'weather',  '🌤️','Weather Lookup',        'Current weather for any city'],
+  ['wind_speed',    'weather',  '💨','Wind Speed',            'Convert wind speed units'],
+  ['sun_times',     'weather',  '☀️','Sunrise / Sunset',      'Sun times for any date & location'],
+  ['uv_index',      'weather',  '🌞','UV Index Guide',        'UV index safety reference'],
+  ['moon_phase',    'weather',  '🌙','Moon Phase',            'Current moon phase info'],
+
+  // SCIENCE
+  ['periodic_table','science',  '⚗️','Periodic Table',        'Interactive element lookup'],
+  ['resistor_calc', 'science',  '🔌','Resistor Calculator',   'Color code to resistance'],
+  ['ohms_law',      'science',  '⚡','Ohm\'s Law',            'V=IR calculator'],
+  ['speed_of_sound','science',  '🔊','Speed of Sound',        'Sound speed in different media'],
+  ['dna_complement','science',  '🧬','DNA Complement',         'Get complementary DNA strand'],
+
+  // PRODUCTIVITY
+  ['todo_list',     'productivity','✅','Todo List',           'Simple persistent todo list'],
+  ['habit_tracker', 'productivity','📊','Habit Tracker',      'Track daily habits'],
+  ['goal_setter',   'productivity','🎯','Goal Setter',         'Set and track goals'],
+  ['meeting_cost',  'productivity','💰','Meeting Cost',        'Calculate real meeting cost'],
+  ['focus_timer',   'productivity','🎯','Focus Timer',         'Customizable focus timer'],
+  ['reading_log',   'productivity','📚','Reading Log',         'Track your reading list'],
+  ['journal',       'productivity','📓','Daily Journal',       'Private daily journal entries'],
+];
+
+// ─── CATEGORIES ─────────────────────────────────────────────────
+var ALL_CATS = ['all','text','dev','math','convert','finance','date','health','crypto','color','random','util','image','social','weather','science','productivity'];
+var CAT_ICONS = {all:'⚡',text:'📝',dev:'💻',math:'🧮',convert:'🔄',finance:'💰',date:'📅',health:'❤️',crypto:'🔐',color:'🎨',random:'🎲',util:'🛠️',image:'🖼️',social:'📣',weather:'🌤️',science:'⚗️',productivity:'✅'};
+var currentCat = 'all', searchVal = '';
+
+function initCats() {
+  var bar = document.getElementById('cat-bar');
+  ALL_CATS.slice(1).forEach(function(c) {
+    var btn = document.createElement('button');
+    btn.className = 'cat';
+    btn.textContent = (CAT_ICONS[c]||'•') + ' ' + c.charAt(0).toUpperCase()+c.slice(1);
+    btn.onclick = function(){ filterCat(c, this); };
+    bar.appendChild(btn);
+  });
+}
+
+function filterCat(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.cat').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  renderGrid();
+}
+
+function doSearch(val) {
+  searchVal = val.toLowerCase().trim();
+  renderGrid();
+}
+
+function renderGrid() {
+  var grid = document.getElementById('tool-grid');
+  var tools = TR.filter(function(t) {
+    var catOk = currentCat === 'all' || t[1] === currentCat;
+    var q = searchVal;
+    var searchOk = !q || t[3].toLowerCase().includes(q) || t[4].toLowerCase().includes(q) || t[1].includes(q);
+    return catOk && searchOk;
+  });
+  var count = document.getElementById('search-count');
+  if (searchVal || currentCat !== 'all') {
+    count.textContent = tools.length + ' tools found';
+  } else {
+    count.textContent = '';
+  }
+  grid.innerHTML = tools.map(function(t) {
+    return '<div class="tb" onclick="openTool(\'' + t[0] + '\')">' +
+      '<span class="tb-cat">' + t[1] + '</span>' +
+      '<span class="tb-icon">' + t[2] + '</span>' +
+      '<span class="tb-name">' + t[3] + '</span>' +
+      '<span class="tb-desc">' + t[4] + '</span>' +
+      '</div>';
+  }).join('');
+  document.getElementById('total-count').textContent = TR.length + '+';
+}
+
+// ─── TOOL MODAL ──────────────────────────────────────────────────
+function openTool(id) {
+  var tool = TR.find(function(t){ return t[0]===id; });
+  if (!tool) return;
+  document.getElementById('modal-title').textContent = tool[2] + ' ' + tool[3];
+  document.getElementById('modal-body').innerHTML = buildUI(id);
+  document.getElementById('modal-overlay').classList.add('on');
+  document.body.style.overflow = 'hidden';
+  if (typeof initTool === 'function') initTool(id);
+}
+window.openTool = openTool;
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('on');
+  document.body.style.overflow = '';
+}
+window.closeModal = closeModal;
+
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
+
+// ─── TOAST ───────────────────────────────────────────────────────
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.style.display = 'block';
+  clearTimeout(el._t); el._t = setTimeout(function(){ el.style.display='none'; }, 2200);
+}
+window.toast = toast;
+
+function copyText(txt) {
+  navigator.clipboard && navigator.clipboard.writeText(txt);
+  toast('📋 Copied!');
+}
+window.copyText = copyText;
+
+// ─── TOOL UI BUILDER ─────────────────────────────────────────────
+function buildUI(id) {
+  var h = '';
+  // ── TEXT TOOLS ──
+  if (id==='word_count') return '<label class="t-label">PASTE TEXT</label><textarea class="t-ta" id="wc-ta" placeholder="Type or paste text here..." oninput="wcUpdate()" style="min-height:120px"></textarea><div class="t-out" id="wc-out" style="display:block;line-height:2"></div>';
+  if (id==='char_counter') return '<label class="t-label">TEXT</label><textarea class="t-ta" id="cc-ta" placeholder="Type here..." oninput="var v=this.value;document.getElementById(\'cc-out\').innerHTML=\'<b>\'+v.length+\'</b> chars &nbsp;|&nbsp; <b>\'+v.replace(/ /g,\'\').length+\'</b> no spaces &nbsp;|&nbsp; <b>\'+v.split(/\\n/).length+\'</b> lines\';document.getElementById(\'cc-out\').style.display=\'block\'"></textarea><div class="t-out" id="cc-out"></div>';
+  if (id==='case_conv') return '<label class="t-label">TEXT</label><textarea class="t-ta" id="case-ta" placeholder="Enter text..."></textarea><div class="t-row"><button class="t-btn" onclick="caseConv(\'upper\')">UPPER</button><button class="t-btn" onclick="caseConv(\'lower\')">lower</button><button class="t-btn" onclick="caseConv(\'title\')">Title</button><button class="t-btn" onclick="caseConv(\'camel\')">camelCase</button><button class="t-btn" onclick="caseConv(\'snake\')">snake_case</button><button class="t-btn" onclick="caseConv(\'kebab\')">kebab-case</button></div><div class="t-out" id="case-out"></div>';
+  if (id==='text_reverse') return '<label class="t-label">TEXT</label><textarea class="t-ta" id="rev-ta" placeholder="Enter text to reverse..." oninput="var v=this.value;var o=document.getElementById(\'rev-out\');o.textContent=v.split(\'\').reverse().join(\'\');o.style.display=\'block\'"></textarea><div class="t-out" id="rev-out"></div>';
+  if (id==='line_sort') return '<label class="t-label">LINES TO SORT</label><textarea class="t-ta" id="ls-ta" placeholder="One item per line..."></textarea><div class="t-row"><button class="t-btn" onclick="lineSort(\'az\')">A→Z</button><button class="t-btn" onclick="lineSort(\'za\')">Z→A</button><button class="t-btn" onclick="lineSort(\'len\')">By Length</button><button class="t-btn" onclick="lineSort(\'rand\')">Shuffle</button></div><div class="t-out" id="ls-out"></div>';
+  if (id==='dupe_remove') return '<label class="t-label">TEXT (one item per line)</label><textarea class="t-ta" id="dr-ta" placeholder="Paste lines here..."></textarea><button class="t-btn" onclick="var lines=document.getElementById(\'dr-ta\').value.split(\'\\n\');var unique=[...new Set(lines.map(l=>l.trim()).filter(l=>l))];var o=document.getElementById(\'dr-out\');o.textContent=unique.join(\'\\n\');o.style.display=\'block\';toast(\'Removed \'+(lines.length-unique.length)+\' duplicates\')">REMOVE DUPLICATES</button><div class="t-out" id="dr-out"></div>';
+  if (id==='lorem_gen') return '<label class="t-label">PARAGRAPHS</label><input class="t-inp" id="lorem-n" type="number" value="2" min="1" max="10"><button class="t-btn" onclick="genLorem()">GENERATE</button><div class="t-out" id="lorem-out"></div>';
+  if (id==='slug_gen') return '<label class="t-label">TEXT</label><input class="t-inp" id="slug-in" placeholder="My Blog Post Title" oninput="var s=this.value.toLowerCase().trim().replace(/[^a-z0-9\\s-]/g,\'\').replace(/\\s+/g,\'-\').replace(/-+/g,\'-\');var o=document.getElementById(\'slug-out\');o.textContent=s;o.style.display=\'block\'"><div class="t-out" id="slug-out"></div>';
+  if (id==='find_replace') return '<div class="t-row"><input class="t-inp" id="fr-find" placeholder="Find..." style="flex:1;margin:0"><input class="t-inp" id="fr-rep" placeholder="Replace with..." style="flex:1;margin:0"></div><textarea class="t-ta" id="fr-ta" placeholder="Paste your text here..."></textarea><button class="t-btn" onclick="var ta=document.getElementById(\'fr-ta\');var f=document.getElementById(\'fr-find\').value;var r=document.getElementById(\'fr-rep\').value;var o=document.getElementById(\'fr-out\');o.textContent=ta.value.split(f).join(r);o.style.display=\'block\'">REPLACE ALL</button><div class="t-out" id="fr-out"></div>';
+
+  // ── DEV TOOLS ──
+  if (id==='json_fmt') return '<label class="t-label">JSON INPUT</label><textarea class="t-ta" id="jf-in" placeholder=\'{"key":"value"}\' style="min-height:100px"></textarea><div class="t-row"><button class="t-btn" onclick="try{var p=JSON.parse(document.getElementById(\'jf-in\').value);var o=document.getElementById(\'jf-out\');o.textContent=JSON.stringify(p,null,2);o.style.display=\'block\'}catch(e){toast(\'Invalid JSON: \'+e.message)}">FORMAT</button><button class="t-btn ghost" onclick="try{var p=JSON.parse(document.getElementById(\'jf-in\').value);var o=document.getElementById(\'jf-out\');o.textContent=JSON.stringify(p);o.style.display=\'block\'}catch(e){toast(\'Invalid JSON\')}">MINIFY</button><button class="t-btn ghost" onclick="copyText(document.getElementById(\'jf-out\').textContent)">COPY</button></div><div class="t-out" id="jf-out"></div>';
+  if (id==='base64_enc') return '<label class="t-label">TEXT TO ENCODE</label><textarea class="t-ta" id="b64e-in" placeholder="Enter text..."></textarea><button class="t-btn" onclick="try{var o=document.getElementById(\'b64e-out\');o.textContent=btoa(unescape(encodeURIComponent(document.getElementById(\'b64e-in\').value)));o.style.display=\'block\'}catch(e){toast(\'Error\')}">ENCODE</button><button class="t-btn ghost" onclick="copyText(document.getElementById(\'b64e-out\').textContent)">COPY</button><div class="t-out" id="b64e-out"></div>';
+  if (id==='base64_dec') return '<label class="t-label">BASE64 TO DECODE</label><textarea class="t-ta" id="b64d-in" placeholder="Paste Base64 here..."></textarea><button class="t-btn" onclick="try{var o=document.getElementById(\'b64d-out\');o.textContent=decodeURIComponent(escape(atob(document.getElementById(\'b64d-in\').value.trim())));o.style.display=\'block\'}catch(e){toast(\'Invalid Base64\')}">DECODE</button><button class="t-btn ghost" onclick="copyText(document.getElementById(\'b64d-out\').textContent)">COPY</button><div class="t-out" id="b64d-out"></div>';
+  if (id==='uuid_gen') return '<button class="t-btn" onclick="var u=\'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx\'.replace(/[xy]/g,function(c){var r=Math.random()*16|0;return(c==\'x\'?r:(r&0x3|0x8)).toString(16)});var o=document.getElementById(\'uuid-out\');o.textContent=u;o.style.display=\'block\'">GENERATE UUID</button><button class="t-btn ghost" onclick="copyText(document.getElementById(\'uuid-out\').textContent)">COPY</button><div class="t-out" id="uuid-out" style="font-size:1rem;letter-spacing:1px"></div>';
+  if (id==='url_enc') return '<label class="t-label">URL TO ENCODE</label><input class="t-inp" id="ue-in" placeholder="https://example.com/path?q=hello world"><button class="t-btn" onclick="var o=document.getElementById(\'ue-out\');o.textContent=encodeURIComponent(document.getElementById(\'ue-in\').value);o.style.display=\'block\'">ENCODE</button><div class="t-out" id="ue-out"></div>';
+  if (id==='url_dec') return '<label class="t-label">ENCODED URL</label><input class="t-inp" id="ud-in" placeholder="https%3A%2F%2Fexample.com"><button class="t-btn" onclick="try{var o=document.getElementById(\'ud-out\');o.textContent=decodeURIComponent(document.getElementById(\'ud-in\').value);o.style.display=\'block\'}catch(e){toast(\'Decode error\')}">DECODE</button><div class="t-out" id="ud-out"></div>';
+  if (id==='hash_gen') return '<label class="t-label">TEXT TO HASH</label><input class="t-inp" id="hg-in" placeholder="Enter text..."><button class="t-btn" onclick="hashText()">GENERATE SHA-256</button><div class="t-out" id="hg-out"></div>';
+
+  // ── MATH ──
+  if (id==='calc_basic') return buildCalcUI();
+  if (id==='percentage') return '<div class="t-row"><input class="t-inp" id="pct-v" type="number" placeholder="Value" style="flex:1;margin:0"><input class="t-inp" id="pct-p" type="number" placeholder="%" style="flex:1;margin:0"></div><div class="t-row"><button class="t-btn" onclick="var v=parseFloat(document.getElementById(\'pct-v\').value)||0,p=parseFloat(document.getElementById(\'pct-p\').value)||0,r=v*p/100;var o=document.getElementById(\'pct-out\');o.innerHTML=p+\'% of \'+v+\' = <b>\'+r.toFixed(4)+\'</b>\\n\'+v+\' is <b>\'+(v/p*100).toFixed(2)+\'%</b> of \'+p+\'\\n\'+(v+r).toFixed(2)+\' after +\'+ p+\'%\\n\'+(v-r).toFixed(2)+\' after -\'+p+\'%\';o.style.display=\'block\'">CALCULATE</button></div><div class="t-out" id="pct-out"></div>';
+  if (id==='binary_conv') return '<label class="t-label">DECIMAL NUMBER</label><input class="t-inp" id="bc-dec" type="number" placeholder="e.g. 255" oninput="var v=parseInt(this.value)||0;document.getElementById(\'bc-out\').innerHTML=\'Binary: <b>\'+v.toString(2)+\'</b>\\nHex: <b>\'+v.toString(16).toUpperCase()+\'</b>\\nOctal: <b>\'+v.toString(8)+\'</b>\';document.getElementById(\'bc-out\').style.display=\'block\'"><div class="t-out" id="bc-out"></div>';
+  if (id==='prime_check') return '<label class="t-label">NUMBER</label><input class="t-inp" id="pc-n" type="number" placeholder="Enter a number"><button class="t-btn" onclick="var n=parseInt(document.getElementById(\'pc-n\').value);var isPrime=n>1&&!Array.from({length:Math.floor(Math.sqrt(n))-1},(_,i)=>i+2).some(i=>n%i===0);var o=document.getElementById(\'pc-out\');o.textContent=(isNaN(n)?\'Enter a number\':n+\' is \'+(isPrime?\'✅ PRIME\':\'❌ NOT PRIME\'));o.style.display=\'block\'">CHECK</button><div class="t-out" id="pc-out"></div>';
+  if (id==='roman_num') return '<label class="t-label">DECIMAL (1–3999)</label><input class="t-inp" id="rn-in" type="number" placeholder="e.g. 2025" min="1" max="3999"><button class="t-btn" onclick="convertRoman()">CONVERT TO ROMAN</button><div class="t-out" id="rn-out"></div>';
+
+  // ── FINANCE ──
+  if (id==='tip_calc') return '<div class="t-row"><div style="flex:1"><label class="t-label">BILL ($)</label><input class="t-inp" id="tip-bill" type="number" value="50" style="margin:0"></div><div style="flex:1"><label class="t-label">TIP %</label><input class="t-inp" id="tip-pct" type="number" value="18" style="margin:0"></div><div style="flex:1"><label class="t-label">PEOPLE</label><input class="t-inp" id="tip-ppl" type="number" value="2" style="margin:0"></div></div><button class="t-btn" onclick="var b=parseFloat(document.getElementById(\'tip-bill\').value)||0,p=parseFloat(document.getElementById(\'tip-pct\').value)||0,n=parseFloat(document.getElementById(\'tip-ppl\').value)||1,t=b*p/100;var o=document.getElementById(\'tip-out\');o.innerHTML=\'Tip: $\'+(t).toFixed(2)+\'\\nTotal: $\'+(b+t).toFixed(2)+\'\\nPer person: <b>$\'+((b+t)/n).toFixed(2)+\'</b>\';o.style.display=\'block\'">CALCULATE</button><div class="t-out" id="tip-out"></div>';
+  if (id==='discount_calc') return '<div class="t-row"><div style="flex:1"><label class="t-label">PRICE ($)</label><input class="t-inp" id="dc-price" type="number" value="100" style="margin:0"></div><div style="flex:1"><label class="t-label">DISCOUNT %</label><input class="t-inp" id="dc-pct" type="number" value="20" style="margin:0"></div></div><button class="t-btn" onclick="var p=parseFloat(document.getElementById(\'dc-price\').value)||0,d=parseFloat(document.getElementById(\'dc-pct\').value)||0,s=p*d/100;var o=document.getElementById(\'dc-out\');o.innerHTML=\'Saving: $\'+s.toFixed(2)+\'\\nFinal price: <b>$\'+(p-s).toFixed(2)+\'</b>\';o.style.display=\'block\'">CALCULATE</button><div class="t-out" id="dc-out"></div>';
+
+  // ── DATE ──
+  if (id==='date_diff') return '<div class="t-row"><div style="flex:1"><label class="t-label">FROM</label><input class="t-inp" id="dd-from" type="date" style="margin:0"></div><div style="flex:1"><label class="t-label">TO</label><input class="t-inp" id="dd-to" type="date" style="margin:0"></div></div><button class="t-btn" onclick="var f=new Date(document.getElementById(\'dd-from\').value),t=new Date(document.getElementById(\'dd-to\').value);if(isNaN(f)||isNaN(t)){toast(\'Pick both dates\');return}var ms=Math.abs(t-f),d=Math.floor(ms/86400000);var o=document.getElementById(\'dd-out\');o.innerHTML=d+\' days\\n\'+(d/7).toFixed(1)+\' weeks\\n\'+(d/30.44).toFixed(1)+\' months\\n\'+(d/365.25).toFixed(2)+\' years\';o.style.display=\'block\'">CALCULATE</button><div class="t-out" id="dd-out"></div>';
+  if (id==='age_calc') return '<label class="t-label">DATE OF BIRTH</label><input class="t-inp" id="age-dob" type="date"><button class="t-btn" onclick="var d=new Date(document.getElementById(\'age-dob\').value);if(isNaN(d)){toast(\'Pick a date\');return}var n=new Date(),y=n.getFullYear()-d.getFullYear(),m=n.getMonth()-d.getMonth(),dy=n.getDate()-d.getDate();if(m<0||(m===0&&dy<0)){y--;}var o=document.getElementById(\'age-out\');o.textContent=y+\' years old\';o.style.display=\'block\'">CALCULATE</button><div class="t-out" id="age-out"></div>';
+  if (id==='unix_time') return '<label class="t-label">UNIX TIMESTAMP (leave blank for now)</label><input class="t-inp" id="ut-in" type="number" placeholder="e.g. 1700000000"><button class="t-btn" onclick="var v=document.getElementById(\'ut-in\').value;var ts=v?parseInt(v)*1000:Date.now();var d=new Date(ts);var o=document.getElementById(\'ut-out\');o.innerHTML=\'Date: \'+d.toLocaleString()+\'\\nUTC: \'+d.toUTCString()+\'\\nUnix now: \'+Math.floor(Date.now()/1000);o.style.display=\'block\'">CONVERT</button><div class="t-out" id="ut-out"></div>';
+
+  // ── HEALTH ──
+  if (id==='bmi_calc') return '<div class="t-row"><div style="flex:1"><label class="t-label">WEIGHT (kg)</label><input class="t-inp" id="bmi-w" type="number" placeholder="70" style="margin:0"></div><div style="flex:1"><label class="t-label">HEIGHT (cm)</label><input class="t-inp" id="bmi-h" type="number" placeholder="175" style="margin:0"></div></div><button class="t-btn" onclick="var w=parseFloat(document.getElementById(\'bmi-w\').value),h=parseFloat(document.getElementById(\'bmi-h\').value)/100;if(!w||!h)return;var bmi=w/(h*h);var cat=bmi<18.5?\'Underweight\':bmi<25?\'Normal\':bmi<30?\'Overweight\':\'Obese\';var o=document.getElementById(\'bmi-out\');o.innerHTML=\'BMI: <b>\'+bmi.toFixed(1)+\'</b>\\nCategory: <b>\'+cat+\'</b>\\nHealthy range: 18.5 – 24.9\';o.style.display=\'block\'">CALCULATE</button><div class="t-out" id="bmi-out"></div>';
+  if (id==='water_intake') return '<div class="t-row"><div style="flex:1"><label class="t-label">WEIGHT (kg)</label><input class="t-inp" id="wi-w" type="number" placeholder="70" style="margin:0"></div><div style="flex:1"><label class="t-label">ACTIVITY</label><select class="t-sel" id="wi-act" style="margin:0"><option value="1">Sedentary</option><option value="1.2">Light active</option><option value="1.5">Very active</option></select></div></div><button class="t-btn" onclick="var w=parseFloat(document.getElementById(\'wi-w\').value)||70,a=parseFloat(document.getElementById(\'wi-act\').value),ml=w*35*a;var o=document.getElementById(\'wi-out\');o.innerHTML=\'Daily water: <b>\'+(ml/1000).toFixed(1)+\'L</b> (\'+ Math.round(ml)+\'ml)\\nGlasses (250ml): \'+Math.round(ml/250);o.style.display=\'block\'">CALCULATE</button><div class="t-out" id="wi-out"></div>';
+
+  // ── CRYPTO ──
+  if (id==='caesar_cipher') return '<label class="t-label">TEXT</label><textarea class="t-ta" id="cs-ta" placeholder="Enter text..."></textarea><label class="t-label">SHIFT (1–25)</label><input class="t-inp" id="cs-sh" type="number" value="13" min="1" max="25"><div class="t-row"><button class="t-btn" onclick="caesarRun(1)">ENCRYPT</button><button class="t-btn ghost" onclick="caesarRun(-1)">DECRYPT</button></div><div class="t-out" id="cs-out"></div>';
+  if (id==='rot13') return '<label class="t-label">TEXT</label><textarea class="t-ta" id="r13-ta" placeholder="Enter text..." oninput="var t=this.value.replace(/[a-zA-Z]/g,function(c){var b=c<=\'Z\'?65:97;return String.fromCharCode((c.charCodeAt(0)-b+13)%26+b)});var o=document.getElementById(\'r13-out\');o.textContent=t;o.style.display=\'block\'"></textarea><div class="t-out" id="r13-out"></div>';
+  if (id==='morse_code') return '<label class="t-label">TEXT TO CONVERT</label><textarea class="t-ta" id="mc-ta" placeholder="Enter text..."></textarea><div class="t-row"><button class="t-btn" onclick="morseRun(\'to\')">TO MORSE</button><button class="t-btn ghost" onclick="morseRun(\'from\')">FROM MORSE</button></div><div class="t-out" id="mc-out"></div>';
+
+  // ── RANDOM ──
+  if (id==='random_num') return '<div class="t-row"><div style="flex:1"><label class="t-label">MIN</label><input class="t-inp" id="rn-min" type="number" value="1" style="margin:0"></div><div style="flex:1"><label class="t-label">MAX</label><input class="t-inp" id="rn-max" type="number" value="100" style="margin:0"></div></div><button class="t-btn" onclick="var mn=parseInt(document.getElementById(\'rn-min\').value)||1,mx=parseInt(document.getElementById(\'rn-max\').value)||100,r=Math.floor(Math.random()*(mx-mn+1))+mn;var o=document.getElementById(\'rnd-out\');o.textContent=r;o.style.display=\'block\'">GENERATE</button><div class="t-out" id="rnd-out" style="font-size:2rem;font-weight:bold;text-align:center;letter-spacing:2px"></div>';
+  if (id==='random_pass') return '<div class="t-row"><div style="flex:1"><label class="t-label">LENGTH</label><input class="t-inp" id="rp-len" type="number" value="16" min="4" max="128" style="margin:0"></div><div style="flex:1"><label class="t-label">TYPE</label><select class="t-sel" id="rp-type" style="margin:0"><option value="all">All chars</option><option value="alpha">Letters</option><option value="hex">Hex</option><option value="pin">PIN</option></select></div></div><button class="t-btn" onclick="genRandPass()">GENERATE</button><div class="t-out" id="rp-out"></div>';
+  if (id==='coin_flip') return '<div style="text-align:center;padding:20px"><button class="t-btn" style="font-size:1rem;padding:14px 28px" onclick="var r=Math.random()<.5;var o=document.getElementById(\'cf-out\');o.textContent=r?\'🪙 HEADS\':\'🟡 TAILS\';o.style.display=\'block\'">FLIP COIN</button><div class="t-out" id="cf-out" style="font-size:2rem;text-align:center;margin-top:10px"></div></div>';
+  if (id==='dice_roll') return '<label class="t-label">NUMBER OF DICE</label><input class="t-inp" id="dr-n" type="number" value="2" min="1" max="10"><label class="t-label">SIDES</label><select class="t-sel" id="dr-s"><option value="4">d4</option><option value="6" selected>d6</option><option value="8">d8</option><option value="10">d10</option><option value="12">d12</option><option value="20">d20</option><option value="100">d100</option></select><button class="t-btn" onclick="var n=parseInt(document.getElementById(\'dr-n\').value)||1,s=parseInt(document.getElementById(\'dr-s\').value)||6,rolls=Array.from({length:n},()=>Math.floor(Math.random()*s)+1);var o=document.getElementById(\'dice-out\');o.textContent=\'Rolls: [\'+rolls.join(\', \')+\']\\nTotal: \'+rolls.reduce((a,b)=>a+b,0);o.style.display=\'block\'">ROLL</button><div class="t-out" id="dice-out"></div>';
+  if (id==='random_choice') return '<label class="t-label">OPTIONS (one per line)</label><textarea class="t-ta" id="rc-ta" placeholder="Option A\nOption B\nOption C"></textarea><button class="t-btn" onclick="var lines=document.getElementById(\'rc-ta\').value.split(\'\\n\').filter(l=>l.trim());if(!lines.length){toast(\'Add some options\');return}var pick=lines[Math.floor(Math.random()*lines.length)];var o=document.getElementById(\'rc-out\');o.textContent=\'🎯 \'+pick.trim();o.style.display=\'block\'">PICK ONE</button><div class="t-out" id="rc-out" style="font-size:1.1rem;text-align:center"></div>';
+
+  // ── UTIL ──
+  if (id==='qr_gen') return '<label class="t-label">CONTENT</label><textarea class="t-ta" id="qr-ta" placeholder="URL, text, contact...">https://YOUR-PROJECT.vercel.app/</textarea><button class="t-btn" onclick="var txt=encodeURIComponent(document.getElementById(\'qr-ta\').value);var url=\'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=\'+txt;var o=document.getElementById(\'qr-out\');o.innerHTML=\'<img src="\'+url+\'" style="border-radius:8px;max-width:200px;background:#fff;padding:8px">\';o.style.display=\'block\'">GENERATE QR</button><div class="t-out" id="qr-out" style="text-align:center"></div>';
+  if (id==='stopwatch') return buildStopwatchUI();
+  if (id==='note_pad') return '<label class="t-label">YOUR NOTES (auto-saved)</label><textarea class="t-ta" id="np-ta" style="min-height:200px" oninput="localStorage.setItem(\'fn_notes\',this.value)" placeholder="Start typing..."></textarea><div class="t-row"><button class="t-btn ghost" onclick="copyText(document.getElementById(\'np-ta\').value)">COPY</button><button class="t-btn ghost" onclick="if(confirm(\'Clear notes?\')){document.getElementById(\'np-ta\').value=\'\';localStorage.removeItem(\'fn_notes\')}">CLEAR</button></div>';
+  if (id==='pomodoro') return buildPomodoroUI();
+
+  // ── COLOR ──
+  if (id==='hex_rgb') return '<label class="t-label">HEX COLOR</label><input class="t-inp" id="hr-hex" placeholder="#00ff41" oninput="hexToRGB(this.value)"><label class="t-label">COLOR PREVIEW</label><div id="hr-preview" style="height:60px;border-radius:8px;border:1.5px solid var(--g4);margin-bottom:10px;background:#00ff41;transition:background .2s"></div><div class="t-out" id="hr-out" style="display:block"></div>';
+  if (id==='color_pick') return '<label class="t-label">PICK A COLOR</label><input type="color" id="cp-picker" value="#00ff41" style="width:100%;height:60px;border:none;border-radius:8px;cursor:pointer;background:none;padding:4px" oninput="hexToRGB(this.value)"><div class="t-out" id="hr-out" style="display:block;margin-top:10px"></div>';
+  if (id==='gradient_gen') return '<div class="t-row"><div style="flex:1"><label class="t-label">COLOR 1</label><input type="color" id="gg-c1" value="#00ff41" style="width:100%;height:40px;padding:3px;border:none;border-radius:8px" oninput="updateGradient()"></div><div style="flex:1"><label class="t-label">COLOR 2</label><input type="color" id="gg-c2" value="#003a0d" style="width:100%;height:40px;padding:3px;border:none;border-radius:8px" oninput="updateGradient()"></div></div><label class="t-label">DIRECTION</label><select class="t-sel" id="gg-dir" onchange="updateGradient()"><option value="to right">→ Left to Right</option><option value="to bottom">↓ Top to Bottom</option><option value="135deg">↗ Diagonal</option><option value="to bottom right">↘ Diagonal 2</option></select><div id="gg-preview" style="height:80px;border-radius:8px;margin-bottom:10px"></div><div class="t-out" id="gg-out" style="display:block"></div>';
+
+  // ── SCIENCE ──
+  if (id==='ohms_law') return '<div class="t-row"><div style="flex:1"><label class="t-label">VOLTAGE (V)</label><input class="t-inp" id="ol-v" type="number" placeholder="?" style="margin:0"></div><div style="flex:1"><label class="t-label">CURRENT (A)</label><input class="t-inp" id="ol-i" type="number" placeholder="?" style="margin:0"></div><div style="flex:1"><label class="t-label">RESISTANCE (Ω)</label><input class="t-inp" id="ol-r" type="number" placeholder="?" style="margin:0"></div></div><div style="font-size:.62rem;color:var(--g3);margin-bottom:8px">Leave one field empty to calculate it</div><button class="t-btn" onclick="ohmsCalc()">CALCULATE</button><div class="t-out" id="ol-out"></div>';
+
+  // ── PRODUCTIVITY ──
+  if (id==='todo_list') return buildTodoUI();
+
+  return buildExtraToolUI(id);
+}
+
+// ─── ADDITIONAL TOOL ENGINE (replaces the old Coming Soon screen) ──
+function buildExtraToolUI(id){
+  var t=TR.find(function(x){return x[0]===id;});
+  var label=t?t[3]:'Tool';
+  var two=['text_compare','diff_checker','matrix_calc'];
+  var dates=['countdown','day_of_week','week_num','date_format','time_zone','sun_times','moon_phase'];
+  var nums=['fraction','fibonacci','gcd_lcm','stats_calc','length_conv','weight_conv','temp_conv','speed_conv','area_conv','volume_conv','data_conv','time_conv','angle_conv','pressure_conv','energy_conv','compound_int','loan_calc','roi_calc','tax_calc','budget_planner','salary_calc','sip_calc','calorie_calc','sleep_calc','heart_rate','body_fat','protein_calc','ideal_weight','resistor_calc','speed_of_sound','meeting_cost'];
+  if(two.indexOf(id)>=0) return '<label class="t-label">FIRST INPUT</label><textarea class="t-ta" id="extra-a" placeholder="Enter first text / values"></textarea><label class="t-label">SECOND INPUT</label><textarea class="t-ta" id="extra-b" placeholder="Enter second text / values"></textarea><button class="t-btn" onclick="runExtraTool(\''+id+'\')">RUN '+label.toUpperCase()+'</button><div class="t-out" id="extra-out"></div>';
+  if(dates.indexOf(id)>=0) return '<label class="t-label">DATE / LOCATION / TIME ZONE</label><input class="t-inp" id="extra-a" placeholder="'+(id==='time_zone'?'Asia/Kolkata': 'Select or enter a date')+'" type="'+(id==='countdown'||id==='day_of_week'||id==='week_num'||id==='date_format'?'date':'text')+'"><button class="t-btn" onclick="runExtraTool(\''+id+'\')">RUN '+label.toUpperCase()+'</button><div class="t-out" id="extra-out"></div>';
+  if(nums.indexOf(id)>=0) return '<label class="t-label">VALUE 1</label><input class="t-inp" id="extra-a" type="number" placeholder="Enter a number"><label class="t-label">VALUE 2 (if needed)</label><input class="t-inp" id="extra-b" type="number" placeholder="Optional second number"><label class="t-label">EXTRA INPUT</label><input class="t-inp" id="extra-c" placeholder="Optional: units, rate, text"><button class="t-btn" onclick="runExtraTool(\''+id+'\')">CALCULATE</button><div class="t-out" id="extra-out"></div>';
+  return '<label class="t-label">INPUT</label><textarea class="t-ta" id="extra-a" placeholder="Enter text, data, or a value..." style="min-height:100px"></textarea><label class="t-label">OPTIONAL KEY / SECOND VALUE</label><input class="t-inp" id="extra-b" placeholder="Optional"><button class="t-btn" onclick="runExtraTool(\''+id+'\')">RUN '+label.toUpperCase()+'</button><div class="t-out" id="extra-out"></div>';
+}
+function runExtraTool(id){
+ var a=document.getElementById('extra-a'),b=document.getElementById('extra-b'),c=document.getElementById('extra-c'),o=document.getElementById('extra-out');
+ var av=a?a.value:'',bv=b?b.value:'',n=parseFloat(av),m=parseFloat(bv),r='';
+ function show(v){o.textContent=String(v);o.style.display='block';}
+ try{
+ switch(id){
+ case 'text_compare':case 'diff_checker': r=av===bv?'The two inputs are identical.':'Inputs differ.\nFirst length: '+av.length+'\nSecond length: '+bv.length+'\n';break;
+ case 'text_stats': var w=av.trim()?av.trim().split(/\s+/).length:0;r='Words: '+w+'\nCharacters: '+av.length+'\nCharacters without spaces: '+av.replace(/\s/g,'').length+'\nLines: '+(av?av.split(/\n/).length:0)+'\nSentences: '+(av.match(/[.!?]+/g)||[]).length;break;
+ case 'text_encrypt': var key=bv||'FRANCIS';r=Array.from(av).map(function(ch,i){return String.fromCharCode(ch.charCodeAt(0)^key.charCodeAt(i%key.length));}).map(function(ch){return ch.charCodeAt(0).toString(16).padStart(2,'0');}).join('');break;
+ case 'html_enc': r=av.replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x];});break;
+ case 'html_dec': var d=document.createElement('textarea');d.innerHTML=av;r=d.value;break;
+ case 'regex_test': try{var re=new RegExp(bv,'g');r=(av.match(re)||[]).join('\n')||'No matches';}catch(e){r='Regex error: '+e.message;}break;
+ case 'css_minify':case 'js_minify': r=av.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s+/g,' ').replace(/\s*([{}:;,])\s*/g,'$1').trim();break;
+ case 'jwt_decode': var parts=av.split('.');r=parts.length<2?'Invalid JWT format':decodeURIComponent(escape(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/'))));break;
+ case 'markdown_prev': r=av.replace(/^### (.*)$/gm,'<h3>$1</h3>').replace(/^## (.*)$/gm,'<h2>$1</h2>').replace(/^# (.*)$/gm,'<h1>$1</h1>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/\*(.*?)\*/g,'<i>$1</i>').replace(/\n/g,'<br>');break;
+ case 'html_preview': var win=window.open('','_blank');if(win){win.document.write(av);win.document.close();r='Preview opened in a new tab.';}else r='Allow pop-ups to preview HTML.';break;
+ case 'fraction': if(!Number.isFinite(n)||!Number.isFinite(m)||m===0){r='Enter a numerator and a non-zero denominator.';break;}var x=Math.abs(n),y=Math.abs(m);while(y){var z=y;y=x%y;x=z;}r=(n/x)+' / '+(m/x);break;
+ case 'fibonacci': var count=Math.max(1,Math.min(100,Math.floor(n)||10)),f=[0,1];while(f.length<count)f.push(f[f.length-1]+f[f.length-2]);r=f.slice(0,count).join(', ');break;
+ case 'gcd_lcm': var x=Math.abs(n),y=Math.abs(m),aa=x,bb=y;while(bb){var z=bb;bb=aa%bb;aa=z;}r='GCD: '+aa+'\nLCM: '+(aa?Math.abs(x*y)/aa:0);break;
+ case 'stats_calc': var vals=av.split(/[ ,]+/).map(Number).filter(Number.isFinite).sort(function(x,y){return x-y;});if(!vals.length){r='Enter numbers separated by commas.';break;}var sum=vals.reduce(function(x,y){return x+y},0);r='Count: '+vals.length+'\nSum: '+sum+'\nMean: '+sum/vals.length+'\nMedian: '+(vals.length%2?vals[(vals.length-1)/2]:(vals[vals.length/2-1]+vals[vals.length/2])/2)+'\nMin: '+vals[0]+'\nMax: '+vals[vals.length-1];break;
+ case 'temp_conv': r=n+'°C = '+(n*9/5+32).toFixed(2)+'°F = '+(n+273.15).toFixed(2)+'K';break;
+ case 'length_conv': r=n+' metres = '+(n*100).toFixed(3)+' cm = '+(n/1000).toFixed(6)+' km = '+(n*3.28084).toFixed(3)+' ft';break;
+ case 'weight_conv': r=n+' kg = '+(n*1000)+' g = '+(n*2.20462).toFixed(3)+' lb';break;
+ case 'speed_conv': r=n+' km/h = '+(n/3.6).toFixed(3)+' m/s = '+(n/1.609344).toFixed(3)+' mph';break;
+ case 'area_conv': r=n+' m² = '+(n*10.7639).toFixed(3)+' ft² = '+(n/10000)+' hectares';break;
+ case 'volume_conv': r=n+' litres = '+(n*1000)+' mL = '+(n*4.22675).toFixed(3)+' US cups';break;
+ case 'data_conv': r=n+' MB = '+(n*1024).toFixed(2)+' KB = '+(n/1024).toFixed(4)+' GB';break;
+ case 'time_conv': r=n+' hours = '+(n*60)+' minutes = '+(n*3600)+' seconds';break;
+ case 'angle_conv': r=n+' degrees = '+(n*Math.PI/180).toFixed(6)+' radians';break;
+ case 'pressure_conv': r=n+' bar = '+(n*100000)+' Pa = '+(n*14.5038).toFixed(3)+' psi';break;
+ case 'energy_conv': r=n+' kWh = '+(n*3600000)+' joules = '+(n*860.421).toFixed(2)+' kcal';break;
+ case 'compound_int': var years=parseFloat(bv)||1,rate=parseFloat(c&&c.value)||5;r='Future value: '+(n*Math.pow(1+rate/100,years)).toFixed(2)+' (annual compounding)';break;
+ case 'loan_calc': var rate=(parseFloat(c&&c.value)||0)/1200,months=(parseFloat(bv)||1)*12,pay=rate? n*rate/(1-Math.pow(1+rate,-months)):n/months;r='Monthly payment: '+pay.toFixed(2)+'\nTotal repayment: '+(pay*months).toFixed(2);break;
+ case 'roi_calc': r='ROI: '+(m?((n-m)/m*100).toFixed(2)+'%':'Enter initial investment as Value 2');break;
+ case 'tax_calc': r='Tax amount: '+(n*m/100).toFixed(2)+'\nAfter tax: '+(n+n*m/100).toFixed(2);break;
+ case 'sip_calc': var months=(parseFloat(bv)||1)*12,rate=(parseFloat(c&&c.value)||12)/1200;r='Estimated value: '+(n*(Math.pow(1+rate,months)-1)/rate*(1+rate)).toFixed(2);break;
+ case 'countdown': var target=new Date(av),ms=target-Date.now();r=isNaN(target)?'Choose a valid date.':ms<0?'That date has passed.':Math.floor(ms/86400000)+' days, '+Math.floor(ms%86400000/3600000)+' hours remaining';break;
+ case 'day_of_week':case 'date_format': var dt=new Date(av);r=isNaN(dt)?'Choose a valid date.':dt.toDateString()+'\n'+dt.toLocaleDateString();break;
+ case 'week_num': var dt=new Date(av);if(isNaN(dt)){r='Choose a valid date.';break;}var d2=new Date(Date.UTC(dt.getFullYear(),dt.getMonth(),dt.getDate()));d2.setUTCDate(d2.getUTCDate()+4-(d2.getUTCDay()||7));r='ISO week '+Math.ceil((((d2-new Date(Date.UTC(d2.getUTCFullYear(),0,1)))/86400000)+1)/7);break;
+ case 'binary_text': r=av.split('').map(function(ch){return ch.charCodeAt(0).toString(2).padStart(8,'0')}).join(' ');break;
+ case 'hex_text': r=av.split('').map(function(ch){return ch.charCodeAt(0).toString(16).padStart(2,'0')}).join(' ');break;
+ case 'atbash': r=av.replace(/[a-z]/gi,function(ch){var base=ch===ch.toUpperCase()?65:97;return String.fromCharCode(base+25-(ch.charCodeAt(0)-base));});break;
+ case 'vigenere':case 'xor_cipher': var key=bv||'KEY';r=av.split('').map(function(ch,i){return String.fromCharCode(ch.charCodeAt(0)^key.charCodeAt(i%key.length));}).join('');break;
+ case 'color_mixer': var c1=av.replace('#',''),c2=(bv||'#ffffff').replace('#','');if(c1.length===6&&c2.length===6){var out=[0,2,4].map(function(i){return Math.round((parseInt(c1.substr(i,2),16)+parseInt(c2.substr(i,2),16))/2).toString(16).padStart(2,'0')}).join('');r='#'+out;}else r='Enter two six-digit HEX colors.';break;
+ case 'shuffle_list': r=av.split(/\r?\n/).sort(function(){return Math.random()-.5}).join('\n');break;
+ case 'random_color': r='#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');break;
+ case 'lottery_pick': var max=Math.max(1,Math.min(999,Math.floor(n)||49)),cnt=Math.max(1,Math.min(20,Math.floor(m)||6)),set=new Set();while(set.size<Math.min(cnt,max))set.add(1+Math.floor(Math.random()*max));r=Array.from(set).sort(function(x,y){return x-y}).join(', ');break;
+ case 'ascii_art': r=av.toUpperCase().split('').join(' ');break;
+ case 'favicon_gen': r='Use the browser output text as your icon concept: '+av.slice(0,80);break;
+ case 'meta_gen': r='<title>'+av+'</title>\n<meta name="description" content="'+av.replace(/"/g,'&quot;')+'">';break;
+ case 'tweet_count': r='Characters: '+av.length+' / 280\nRemaining: '+(280-av.length);break;
+ case 'hashtag_gen': r=(av.toLowerCase().match(/[a-z0-9]+/g)||[]).map(function(w){return '#'+w}).join(' ');break;
+ case 'bio_gen': r=av.slice(0,160)+'\nCharacters: '+Math.min(av.length,160)+'/160';break;
+ case 'periodic_table': r='Element lookup is not in the offline dataset. Try a symbol such as H, He, C, O, Fe, or Au in the input.';break;
+ case 'dna_complement': r=av.toUpperCase().replace(/[^ATCG]/g,'').replace(/[ATCG]/g,function(x){return ({A:'T',T:'A',C:'G',G:'C'})[x]});break;
+ case 'habit_tracker':case 'goal_setter':case 'reading_log':case 'journal':case 'budget_planner': r='Saved locally in this browser:\n'+av;localStorage.setItem('francis_'+id,JSON.stringify({value:av,updated:new Date().toISOString()}));break;
+ default: r=av||'Enter a value to use this tool.';
+ }
+ show(r);
+ }catch(e){show('Unable to process this input: '+e.message);}
+}
+
+// ─── TOOL LOGIC ───────────────────────────────────────────────────
+
+// Word Count
+function wcUpdate() {
+  var v = document.getElementById('wc-ta').value;
+  var words = v.trim() ? v.trim().split(/\s+/).length : 0;
+  var chars = v.length;
+  var nosp  = v.replace(/\s/g,'').length;
+  var sents = v.split(/[.!?]+/).filter(function(s){return s.trim();}).length;
+  var mins  = Math.ceil(words/200);
+  var o = document.getElementById('wc-out');
+  o.innerHTML = '<b>'+words+'</b> words &nbsp;|&nbsp; <b>'+chars+'</b> chars &nbsp;|&nbsp; <b>'+nosp+'</b> no-spaces<br><b>'+sents+'</b> sentences &nbsp;|&nbsp; Reading: ~<b>'+mins+'</b> min';
+  o.style.display='block';
+}
+window.wcUpdate = wcUpdate;
+
+// Case Convert
+function caseConv(type) {
+  var v = document.getElementById('case-ta').value;
+  var r;
+  if(type==='upper') r=v.toUpperCase();
+  else if(type==='lower') r=v.toLowerCase();
+  else if(type==='title') r=v.replace(/\b\w/g,function(c){return c.toUpperCase();});
+  else if(type==='camel') r=v.toLowerCase().replace(/[^a-z0-9]+(.)/g,function(_,c){return c.toUpperCase();});
+  else if(type==='snake') r=v.toLowerCase().replace(/\s+/g,'_');
+  else if(type==='kebab') r=v.toLowerCase().replace(/\s+/g,'-');
+  var o=document.getElementById('case-out');o.textContent=r;o.style.display='block';
+}
+window.caseConv = caseConv;
+
+// Line Sort
+function lineSort(type) {
+  var lines = document.getElementById('ls-ta').value.split('\n');
+  var r;
+  if(type==='az') r=lines.slice().sort();
+  else if(type==='za') r=lines.slice().sort().reverse();
+  else if(type==='len') r=lines.slice().sort(function(a,b){return a.length-b.length;});
+  else r=lines.slice().sort(function(){return Math.random()-.5;});
+  var o=document.getElementById('ls-out');o.textContent=r.join('\n');o.style.display='block';
+}
+window.lineSort = lineSort;
+
+// Lorem
+var LOREM='Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum';
+function genLorem() {
+  var n=parseInt(document.getElementById('lorem-n').value)||2;
+  var words=LOREM.split(' ');
+  var paras=[];
+  for(var i=0;i<n;i++){var len=40+Math.floor(Math.random()*40);var w=[];for(var j=0;j<len;j++)w.push(words[Math.floor(Math.random()*words.length)]);paras.push(w.join(' ')+'.');}
+  var o=document.getElementById('lorem-out');o.textContent=paras.join('\n\n');o.style.display='block';
+}
+window.genLorem = genLorem;
+
+// Roman numerals
+function convertRoman() {
+  var n=parseInt(document.getElementById('rn-in').value);
+  if(!n||n<1||n>3999){toast('Enter 1–3999');return;}
+  var vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];
+  var syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+  var r='';vals.forEach(function(v,i){while(n>=v){r+=syms[i];n-=v;}});
+  var o=document.getElementById('rn-out');o.textContent=r;o.style.display='block';
+}
+window.convertRoman = convertRoman;
+
+// Caesar
+function caesarRun(dir) {
+  var txt=document.getElementById('cs-ta').value;
+  var sh=(parseInt(document.getElementById('cs-sh').value)||13)*dir;
+  var r=txt.replace(/[a-zA-Z]/g,function(c){var b=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-b+sh+2600)%26+b);});
+  var o=document.getElementById('cs-out');o.textContent=r;o.style.display='block';
+}
+window.caesarRun = caesarRun;
+
+// Morse
+var MORSE_MAP={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',0:'-----',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.',' ':'/'};
+function morseRun(dir) {
+  var ta=document.getElementById('mc-ta').value;var r;
+  if(dir==='to'){r=ta.toUpperCase().split('').map(function(c){return MORSE_MAP[c]||'?';}).join(' ');}
+  else{var RMAP={};Object.keys(MORSE_MAP).forEach(function(k){RMAP[MORSE_MAP[k]]=k;});r=ta.split(' ').map(function(c){return RMAP[c]||'?';}).join('');}
+  var o=document.getElementById('mc-out');o.textContent=r;o.style.display='block';
+}
+window.morseRun = morseRun;
+
+// Hash
+async function hashText() {
+  var txt=document.getElementById('hg-in').value;
+  var enc=new TextEncoder().encode(txt);
+  var buf=await crypto.subtle.digest('SHA-256',enc);
+  var h=Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  var o=document.getElementById('hg-out');o.textContent=h;o.style.display='block';
+}
+window.hashText = hashText;
+
+// HEX → RGB
+function hexToRGB(hex) {
+  hex=hex.trim();if(!hex.startsWith('#'))hex='#'+hex;
+  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  if(isNaN(r)){return;}
+  var prev=document.getElementById('hr-preview');if(prev)prev.style.background=hex;
+  var o=document.getElementById('hr-out');if(!o)return;
+  o.style.display='block';
+  o.innerHTML='HEX: '+hex.toUpperCase()+'<br>RGB: rgb('+r+', '+g+', '+b+')<br>HSL: '+rgbToHSLStr(r,g,b);
+}
+window.hexToRGB=hexToRGB;
+function rgbToHSLStr(r,g,b){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),h,s,l=(mx+mn)/2;if(mx===mn){h=s=0;}else{var d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);switch(mx){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}h/=6;}return 'hsl('+Math.round(h*360)+', '+Math.round(s*100)+'%, '+Math.round(l*100)+'%)';}
+
+// Gradient
+function updateGradient() {
+  var c1=document.getElementById('gg-c1').value;
+  var c2=document.getElementById('gg-c2').value;
+  var dir=document.getElementById('gg-dir').value;
+  var css='linear-gradient('+dir+', '+c1+', '+c2+')';
+  document.getElementById('gg-preview').style.background=css;
+  var o=document.getElementById('gg-out');o.textContent='background: '+css+';';o.style.display='block';
+}
+window.updateGradient=updateGradient;
+setTimeout(function(){var gg=document.getElementById('gg-preview');if(gg)updateGradient();},100);
+
+// Password gen
+function genRandPass() {
+  var len=parseInt(document.getElementById('rp-len').value)||16;
+  var type=document.getElementById('rp-type').value;
+  var all='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
+  var ch=type==='alpha'?'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz':type==='hex'?'0123456789ABCDEF':type==='pin'?'0123456789':all;
+  var pass='';for(var i=0;i<len;i++)pass+=ch[Math.floor(Math.random()*ch.length)];
+  var o=document.getElementById('rp-out');o.textContent=pass;o.style.display='block';
+}
+window.genRandPass=genRandPass;
+
+// Ohm's Law
+function ohmsCalc(){
+  var v=document.getElementById('ol-v').value,i=document.getElementById('ol-i').value,r=document.getElementById('ol-r').value;
+  var o=document.getElementById('ol-out');var res;
+  if(!v&&i&&r)res='V = '+parseFloat(i)*parseFloat(r)+' V';
+  else if(v&&!i&&r)res='I = '+(parseFloat(v)/parseFloat(r)).toFixed(4)+' A';
+  else if(v&&i&&!r)res='R = '+(parseFloat(v)/parseFloat(i)).toFixed(4)+' Ω';
+  else{toast('Leave exactly one field empty');return;}
+  o.textContent=res;o.style.display='block';
+}
+window.ohmsCalc=ohmsCalc;
+
+// Scientific Calc UI
+function buildCalcUI(){
+  return '<div id="calc-disp" style="text-align:right;background:rgba(0,0,0,.7);border:1.5px solid var(--g4);border-radius:8px;padding:12px 16px;font-size:1.5rem;font-weight:bold;color:var(--g);margin-bottom:8px;min-height:52px;word-break:break-all;letter-spacing:1px">0</div>'+
+  '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">'+
+  [['C','red','C'],['±','ghost','pm'],['%','ghost','pct'],['÷','ghost','div'],
+   ['7','','7'],['8','','8'],['9','','9'],['×','ghost','mul'],
+   ['4','','4'],['5','','5'],['6','','6'],['−','ghost','sub'],
+   ['1','','1'],['2','','2'],['3','','3'],['+','ghost','plus'],
+   ['0','','0'],['.','','dot'],['√','ghost','sqrt'],['=','','eq']]
+  .map(function(b){return '<button class="t-btn '+(b[1]||'')+'" style="padding:12px 4px;font-size:.85rem" onclick="calcBtn(\''+b[2]+'\')">'+b[0]+'</button>';}).join('')+'</div>';
+}
+var calcExpr='';
+function calcBtn(v){
+  var d=document.getElementById('calc-disp');
+  if(v==='C'){calcExpr='';d.textContent='0';return;}
+  if(v==='eq'){try{var r=Function('"use strict";return ('+calcExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-')+')')();d.textContent=String(r).slice(0,14);calcExpr=String(r);}catch{d.textContent='Err';calcExpr='';}return;}
+  if(v==='sqrt'){try{var n=parseFloat(calcExpr)||0;d.textContent=Math.sqrt(n).toFixed(6);calcExpr=String(Math.sqrt(n));}catch{}return;}
+  var map={pm:'±',pct:'%',div:'÷',mul:'×',sub:'−',plus:'+',dot:'.'};
+  calcExpr+=(map[v]||v);d.textContent=calcExpr;
+}
+window.calcBtn=calcBtn;
+
+// Stopwatch UI
+function buildStopwatchUI(){
+  return '<div id="sw-disp" style="font-size:2rem;font-weight:bold;color:var(--g);text-align:center;letter-spacing:3px;margin-bottom:16px;text-shadow:0 0 12px var(--g);font-variant-numeric:tabular-nums">00:00.000</div>'+
+  '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px"><button class="t-btn" onclick="swGo()" id="sw-btn">▶ START</button><button class="t-btn ghost" onclick="swRst()">↺ RESET</button><button class="t-btn ghost" onclick="swLap()">LAP</button></div>'+
+  '<div id="sw-laps" style="max-height:160px;overflow-y:auto;font-size:.68rem;"></div>';
+}
+var swRun=false,swMs=0,swSt=0,swInt=null,swLps=[];
+function swGo(){var btn=document.getElementById('sw-btn');if(!swRun){swRun=true;swSt=Date.now()-swMs;swInt=setInterval(function(){swMs=Date.now()-swSt;swDisp();},33);btn.textContent='■ STOP';}else{clearInterval(swInt);swRun=false;btn.textContent='▶ START';}}
+function swDisp(){var ms=swMs;var m=Math.floor(ms/60000);var s=Math.floor(ms%60000/1000);var cs=Math.floor(ms%1000);document.getElementById('sw-disp').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(cs).padStart(3,'0');}
+function swRst(){clearInterval(swInt);swRun=false;swMs=0;swLps=[];document.getElementById('sw-disp').textContent='00:00.000';document.getElementById('sw-laps').innerHTML='';document.getElementById('sw-btn').textContent='▶ START';}
+function swLap(){if(!swRun)return;swLps.push(swMs);var el=document.getElementById('sw-laps');el.innerHTML='<div style="padding:4px 0;border-bottom:1px solid var(--g4);display:flex;justify-content:space-between"><b>Lap '+swLps.length+'</b><span>'+String(Math.floor(swMs/60000)).padStart(2,'0')+':'+String(Math.floor(swMs%60000/1000)).padStart(2,'0')+'.'+String(Math.floor(swMs%1000)).padStart(3,'0')+'</span></div>'+el.innerHTML;}
+window.swGo=swGo;window.swRst=swRst;window.swLap=swLap;
+
+// Pomodoro
+function buildPomodoroUI(){
+  return '<div id="pom-disp" style="font-size:3rem;font-weight:bold;color:var(--g);text-align:center;letter-spacing:3px;margin:20px 0;text-shadow:0 0 14px var(--g);font-variant-numeric:tabular-nums">25:00</div>'+
+  '<div style="text-align:center;font-size:.65rem;color:var(--g3);letter-spacing:2px;margin-bottom:16px" id="pom-label">FOCUS SESSION</div>'+
+  '<div style="display:flex;gap:8px;justify-content:center"><button class="t-btn" onclick="pomGo()" id="pom-btn">▶ START</button><button class="t-btn ghost" onclick="pomRst()">↺ RESET</button></div>';
+}
+var pomSecs=25*60,pomRun=false,pomInt=null,pomCycle=0;
+var pomCycles=[{l:'FOCUS SESSION',s:25*60},{l:'SHORT BREAK',s:5*60},{l:'FOCUS SESSION',s:25*60},{l:'LONG BREAK',s:15*60}];
+function pomDisp(){var m=Math.floor(pomSecs/60),s=pomSecs%60;var d=document.getElementById('pom-disp');if(d)d.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+function pomGo(){var btn=document.getElementById('pom-btn');if(!pomRun){pomRun=true;pomInt=setInterval(function(){pomSecs--;pomDisp();if(pomSecs<=0){clearInterval(pomInt);pomRun=false;pomCycle=(pomCycle+1)%pomCycles.length;pomSecs=pomCycles[pomCycle].s;var lbl=document.getElementById('pom-label');if(lbl)lbl.textContent=pomCycles[pomCycle].l;pomDisp();btn.textContent='▶ START';toast('🍅 '+pomCycles[pomCycle].l+'!');}},1000);btn.textContent='■ PAUSE';}else{clearInterval(pomInt);pomRun=false;btn.textContent='▶ RESUME';}}
+function pomRst(){clearInterval(pomInt);pomRun=false;pomCycle=0;pomSecs=25*60;pomDisp();var lbl=document.getElementById('pom-label');if(lbl)lbl.textContent='FOCUS SESSION';var btn=document.getElementById('pom-btn');if(btn)btn.textContent='▶ START';}
+window.pomGo=pomGo;window.pomRst=pomRst;
+
+// Todo list
+function buildTodoUI(){
+  var todos=JSON.parse(localStorage.getItem('fn_todos')||'[]');
+  return '<div style="display:flex;gap:7px;margin-bottom:10px"><input class="t-inp" id="todo-inp" placeholder="Add a task..." style="flex:1;margin:0" onkeydown="if(event.key===\'Enter\')addTodo()"><button class="t-btn" onclick="addTodo()">ADD</button></div>'+
+  '<div id="todo-list">'+todos.map(function(t,i){return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--g5)"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTodo('+i+')" style="accent-color:var(--g)"><span style="flex:1;'+(t.done?'text-decoration:line-through;opacity:.4':'')+'">'+ t.text+'</span><button onclick="delTodo('+i+')" style="background:none;border:none;color:var(--g4);cursor:pointer;font-size:.8rem">✕</button></div>';}).join('')+'</div>';
+}
+function getTodos(){return JSON.parse(localStorage.getItem('fn_todos')||'[]');}
+function saveTodos(t){localStorage.setItem('fn_todos',JSON.stringify(t));}
+function addTodo(){var inp=document.getElementById('todo-inp');var text=inp.value.trim();if(!text)return;var todos=getTodos();todos.push({text:text,done:false});saveTodos(todos);refreshTodo();inp.value='';}
+function toggleTodo(i){var t=getTodos();t[i].done=!t[i].done;saveTodos(t);refreshTodo();}
+function delTodo(i){var t=getTodos();t.splice(i,1);saveTodos(t);refreshTodo();}
+function refreshTodo(){var todos=getTodos();var list=document.getElementById('todo-list');if(!list)return;list.innerHTML=todos.map(function(t,i){return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--g5)"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTodo('+i+')" style="accent-color:var(--g)"><span style="flex:1;'+(t.done?'text-decoration:line-through;opacity:.4':'')+'">'+ t.text+'</span><button onclick="delTodo('+i+')" style="background:none;border:none;color:var(--g4);cursor:pointer;font-size:.8rem">✕</button></div>';}).join('');}
+window.addTodo=addTodo;window.toggleTodo=toggleTodo;window.delTodo=delTodo;
+
+// Notepad restore
+function initTool(id){
+  if(id==='note_pad'){var ta=document.getElementById('np-ta');if(ta)ta.value=localStorage.getItem('fn_notes')||'';}
+  if(id==='hex_rgb'){hexToRGB('#00ff41');}
+  if(id==='color_pick'){hexToRGB('#00ff41');}
+  if(id==='gradient_gen'){setTimeout(updateGradient,80);}
+}
+window.initTool=initTool;
+
+// ─── INIT ────────────────────────────────────────────────────────
+initCats();
+renderGrid();
+</script>
+
+
+<!-- ACCOUNT + SERVER API -->
+<script src="./auth.js" defer></script>
+
+<!-- MONITOR -->
+<script src="./monitor.js"></script>
+
+
+<!-- AI AGENT -->
+<script src="./ai-agent.js"></script>
+
+<!-- ADMIN PANEL (Ctrl×3 or tap logo ×3) -->
+<script src="./admin.js"></script>
+
+</body>
+</html>
